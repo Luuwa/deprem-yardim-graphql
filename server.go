@@ -1,13 +1,13 @@
 package main
 
 import (
-	"deprem-yardim-graphql/deprem-yardim-graphql/graph"
 	"log"
 	"net/http"
 	"os"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/Luuwa/deprem-yardim-graphql/graph"
 )
 
 const defaultPort = "8080"

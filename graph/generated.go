@@ -5,7 +5,6 @@ package graph
 import (
 	"bytes"
 	"context"
-	"deprem-yardim-graphql/deprem-yardim-graphql/graph/model"
 	"embed"
 	"errors"
 	"fmt"
@@ -15,6 +14,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
+	"github.com/Luuwa/deprem-yardim-graphql/graph/model"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -37,6 +37,8 @@ type Config struct {
 }
 
 type ResolverRoot interface {
+	Mutation() MutationResolver
+	Query() QueryResolver
 }
 
 type DirectiveRoot struct {
@@ -88,7 +90,12 @@ type ComplexityRoot struct {
 		Timestamp        func(childComplexity int) int
 	}
 
+	Mutation struct {
+		CreateLatLng func(childComplexity int, input model.NewLatLng) int
+	}
+
 	Query struct {
+		LatLngs func(childComplexity int) int
 	}
 
 	Response struct {
@@ -112,6 +119,13 @@ type ComplexityRoot struct {
 	UpdateFeedLocationsRequest struct {
 		FeedLocations func(childComplexity int) int
 	}
+}
+
+type MutationResolver interface {
+	CreateLatLng(ctx context.Context, input model.NewLatLng) (*model.LatLng, error)
+}
+type QueryResolver interface {
+	LatLngs(ctx context.Context) ([]*model.LatLng, error)
 }
 
 type executableSchema struct {
@@ -339,6 +353,25 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Location.Timestamp(childComplexity), true
 
+	case "Mutation.createLatLng":
+		if e.complexity.Mutation.CreateLatLng == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createLatLng_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateLatLng(childComplexity, args["input"].(model.NewLatLng)), true
+
+	case "Query.LatLngs":
+		if e.complexity.Query.LatLngs == nil {
+			break
+		}
+
+		return e.complexity.Query.LatLngs(childComplexity), true
+
 	case "Response.Count":
 		if e.complexity.Response.Count == nil {
 			break
@@ -437,7 +470,9 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e}
-	inputUnmarshalMap := graphql.BuildUnmarshalerMap()
+	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputNewLatLng,
+	)
 	first := true
 
 	switch rc.Operation.Operation {
@@ -449,6 +484,21 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 			first = false
 			ctx = graphql.WithUnmarshalerMap(ctx, inputUnmarshalMap)
 			data := ec._Query(ctx, rc.Operation.SelectionSet)
+			var buf bytes.Buffer
+			data.MarshalGQL(&buf)
+
+			return &graphql.Response{
+				Data: buf.Bytes(),
+			}
+		}
+	case ast.Mutation:
+		return func(ctx context.Context) *graphql.Response {
+			if !first {
+				return nil
+			}
+			first = false
+			ctx = graphql.WithUnmarshalerMap(ctx, inputUnmarshalMap)
+			data := ec._Mutation(ctx, rc.Operation.SelectionSet)
 			var buf bytes.Buffer
 			data.MarshalGQL(&buf)
 
@@ -500,6 +550,21 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) field_Mutation_createLatLng_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.NewLatLng
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNNewLatLng2githubᚗcomᚋLuuwaᚋdepremᚑyardimᚑgraphqlᚋgraphᚋmodelᚐNewLatLng(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
 
 func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -1865,6 +1930,115 @@ func (ec *executionContext) fieldContext_Location_Channel(ctx context.Context, f
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_createLatLng(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createLatLng(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateLatLng(rctx, fc.Args["input"].(model.NewLatLng))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.LatLng)
+	fc.Result = res
+	return ec.marshalNLatLng2ᚖgithubᚗcomᚋLuuwaᚋdepremᚑyardimᚑgraphqlᚋgraphᚋmodelᚐLatLng(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createLatLng(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "lat":
+				return ec.fieldContext_LatLng_lat(ctx, field)
+			case "lng":
+				return ec.fieldContext_LatLng_lng(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type LatLng", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createLatLng_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_LatLngs(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_LatLngs(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().LatLngs(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.LatLng)
+	fc.Result = res
+	return ec.marshalNLatLng2ᚕᚖgithubᚗcomᚋLuuwaᚋdepremᚑyardimᚑgraphqlᚋgraphᚋmodelᚐLatLngᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_LatLngs(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "lat":
+				return ec.fieldContext_LatLng_lat(ctx, field)
+			case "lng":
+				return ec.fieldContext_LatLng_lng(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type LatLng", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query___type(ctx, field)
 	if err != nil {
@@ -2061,7 +2235,7 @@ func (ec *executionContext) _Response_Results(ctx context.Context, field graphql
 	}
 	res := resTmp.([]*model.Result)
 	fc.Result = res
-	return ec.marshalOResult2ᚕᚖdepremᚑyardimᚑgraphqlᚋdepremᚑyardimᚑgraphqlᚋgraphᚋmodelᚐResultᚄ(ctx, field.Selections, res)
+	return ec.marshalOResult2ᚕᚖgithubᚗcomᚋLuuwaᚋdepremᚑyardimᚑgraphqlᚋgraphᚋmodelᚐResultᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Response_Results(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2549,7 +2723,7 @@ func (ec *executionContext) _UpdateFeedLocationsRequest_FeedLocations(ctx contex
 	}
 	res := resTmp.([]*model.FeedLocation)
 	fc.Result = res
-	return ec.marshalOFeedLocation2ᚕᚖdepremᚑyardimᚑgraphqlᚋdepremᚑyardimᚑgraphqlᚋgraphᚋmodelᚐFeedLocationᚄ(ctx, field.Selections, res)
+	return ec.marshalOFeedLocation2ᚕᚖgithubᚗcomᚋLuuwaᚋdepremᚑyardimᚑgraphqlᚋgraphᚋmodelᚐFeedLocationᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_UpdateFeedLocationsRequest_FeedLocations(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4348,6 +4522,42 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(ctx context.Conte
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputNewLatLng(ctx context.Context, obj interface{}) (model.NewLatLng, error) {
+	var it model.NewLatLng
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"Latitude", "Longitude"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "Latitude":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Latitude"))
+			it.Latitude, err = ec.unmarshalNFloat2float64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "Longitude":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Longitude"))
+			it.Longitude, err = ec.unmarshalNFloat2float64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -4662,6 +4872,38 @@ func (ec *executionContext) _Location(ctx context.Context, sel ast.SelectionSet,
 	return out
 }
 
+var mutationImplementors = []string{"Mutation"}
+
+func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, mutationImplementors)
+	ctx = graphql.WithFieldContext(ctx, &graphql.FieldContext{
+		Object: "Mutation",
+	})
+
+	out := graphql.NewFieldSet(fields)
+	for i, field := range fields {
+		innerCtx := graphql.WithRootFieldContext(ctx, &graphql.RootFieldContext{
+			Object: field.Name,
+			Field:  field,
+		})
+
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Mutation")
+		case "createLatLng":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createLatLng(ctx, field)
+			})
+
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	return out
+}
+
 var queryImplementors = []string{"Query"}
 
 func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -4680,6 +4922,26 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
+		case "LatLngs":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_LatLngs(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
 		case "__type":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -5166,7 +5428,7 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) marshalNFeedLocation2ᚖdepremᚑyardimᚑgraphqlᚋdepremᚑyardimᚑgraphqlᚋgraphᚋmodelᚐFeedLocation(ctx context.Context, sel ast.SelectionSet, v *model.FeedLocation) graphql.Marshaler {
+func (ec *executionContext) marshalNFeedLocation2ᚖgithubᚗcomᚋLuuwaᚋdepremᚑyardimᚑgraphqlᚋgraphᚋmodelᚐFeedLocation(ctx context.Context, sel ast.SelectionSet, v *model.FeedLocation) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -5206,7 +5468,70 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
-func (ec *executionContext) marshalNResult2ᚖdepremᚑyardimᚑgraphqlᚋdepremᚑyardimᚑgraphqlᚋgraphᚋmodelᚐResult(ctx context.Context, sel ast.SelectionSet, v *model.Result) graphql.Marshaler {
+func (ec *executionContext) marshalNLatLng2githubᚗcomᚋLuuwaᚋdepremᚑyardimᚑgraphqlᚋgraphᚋmodelᚐLatLng(ctx context.Context, sel ast.SelectionSet, v model.LatLng) graphql.Marshaler {
+	return ec._LatLng(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNLatLng2ᚕᚖgithubᚗcomᚋLuuwaᚋdepremᚑyardimᚑgraphqlᚋgraphᚋmodelᚐLatLngᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.LatLng) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNLatLng2ᚖgithubᚗcomᚋLuuwaᚋdepremᚑyardimᚑgraphqlᚋgraphᚋmodelᚐLatLng(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNLatLng2ᚖgithubᚗcomᚋLuuwaᚋdepremᚑyardimᚑgraphqlᚋgraphᚋmodelᚐLatLng(ctx context.Context, sel ast.SelectionSet, v *model.LatLng) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._LatLng(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNNewLatLng2githubᚗcomᚋLuuwaᚋdepremᚑyardimᚑgraphqlᚋgraphᚋmodelᚐNewLatLng(ctx context.Context, v interface{}) (model.NewLatLng, error) {
+	res, err := ec.unmarshalInputNewLatLng(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNResult2ᚖgithubᚗcomᚋLuuwaᚋdepremᚑyardimᚑgraphqlᚋgraphᚋmodelᚐResult(ctx context.Context, sel ast.SelectionSet, v *model.Result) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -5525,7 +5850,7 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return res
 }
 
-func (ec *executionContext) marshalOFeedLocation2ᚕᚖdepremᚑyardimᚑgraphqlᚋdepremᚑyardimᚑgraphqlᚋgraphᚋmodelᚐFeedLocationᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.FeedLocation) graphql.Marshaler {
+func (ec *executionContext) marshalOFeedLocation2ᚕᚖgithubᚗcomᚋLuuwaᚋdepremᚑyardimᚑgraphqlᚋgraphᚋmodelᚐFeedLocationᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.FeedLocation) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -5552,7 +5877,7 @@ func (ec *executionContext) marshalOFeedLocation2ᚕᚖdepremᚑyardimᚑgraphql
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNFeedLocation2ᚖdepremᚑyardimᚑgraphqlᚋdepremᚑyardimᚑgraphqlᚋgraphᚋmodelᚐFeedLocation(ctx, sel, v[i])
+			ret[i] = ec.marshalNFeedLocation2ᚖgithubᚗcomᚋLuuwaᚋdepremᚑyardimᚑgraphqlᚋgraphᚋmodelᚐFeedLocation(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -5610,7 +5935,7 @@ func (ec *executionContext) marshalOFloat2ᚕfloat64ᚄ(ctx context.Context, sel
 	return ret
 }
 
-func (ec *executionContext) marshalOResult2ᚕᚖdepremᚑyardimᚑgraphqlᚋdepremᚑyardimᚑgraphqlᚋgraphᚋmodelᚐResultᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Result) graphql.Marshaler {
+func (ec *executionContext) marshalOResult2ᚕᚖgithubᚗcomᚋLuuwaᚋdepremᚑyardimᚑgraphqlᚋgraphᚋmodelᚐResultᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Result) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -5637,7 +5962,7 @@ func (ec *executionContext) marshalOResult2ᚕᚖdepremᚑyardimᚑgraphqlᚋdep
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNResult2ᚖdepremᚑyardimᚑgraphqlᚋdepremᚑyardimᚑgraphqlᚋgraphᚋmodelᚐResult(ctx, sel, v[i])
+			ret[i] = ec.marshalNResult2ᚖgithubᚗcomᚋLuuwaᚋdepremᚑyardimᚑgraphqlᚋgraphᚋmodelᚐResult(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)

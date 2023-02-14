@@ -51,6 +51,11 @@ type Location struct {
 	Channel          string    `json:"Channel"`
 }
 
+type NewLatLng struct {
+	Latitude  float64 `json:"Latitude"`
+	Longitude float64 `json:"Longitude"`
+}
+
 type Response struct {
 	Count   int       `json:"Count"`
 	Results []*Result `json:"Results"`

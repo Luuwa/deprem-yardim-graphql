@@ -65,4 +65,15 @@ type FeedLocation  {
   Longitude: Float!
   Address:   String!
 }
+input NewLatLng  {
+  Latitude:  Float!
+  Longitude: Float!
+}
 
+type Query {
+  LatLngs: [LatLng!]!
+}
+
+type Mutation {
+  createLatLng(input: NewLatLng!): LatLng!
+}
