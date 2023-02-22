@@ -48,6 +48,23 @@ func (r *queryResolver) LatLngs(ctx context.Context) ([]*model.LatLng, error) {
 	return batch, nil
 }
 
+// FeedByID is the resolver for the feedByID field.
+func (r *queryResolver) FeedByID(ctx context.Context, id int) (*model.Feed, error) {
+	var feed *model.Feed
+	for _, feed_ := range r.feeds {
+		if feed_.ID == id {
+			feed = &model.Feed{
+				ID: feed_.ID, FullText: feed_.FullText,
+				IsResolved: feed_.IsResolved, Channel: feed_.Channel,
+				Timestamp: feed_.Timestamp, Epoch: feed_.Epoch,
+				ExtraParameters: feed_.ExtraParameters, FormattedAddress: feed_.FormattedAddress,
+				Reason: feed_.Reason}
+		}
+
+	}
+	return feed, nil
+}
+
 // Feeds is the resolver for the feeds field.
 func (r *queryResolver) Feeds(ctx context.Context) ([]*model.Feed, error) {
 	var batch []*model.Feed
@@ -64,23 +81,6 @@ func (r *queryResolver) Feeds(ctx context.Context) ([]*model.Feed, error) {
 		batch = append(batch, &feed)
 	}
 	return batch, nil
-}
-
-// FeedByID is the resolver for the feedByID field.
-func (r *queryResolver) FeedByID(ctx context.Context, id int) (*model.Feed, error) {
-	var feed *model.Feed
-	for _, feed_ := range r.feeds {
-		if feed_.ID == id {
-			feed = &model.Feed{
-				ID: feed_.ID, FullText: feed_.FullText,
-				IsResolved: feed_.IsResolved, Channel: feed_.Channel,
-				Timestamp: feed_.Timestamp, Epoch: feed_.Epoch,
-				ExtraParameters: feed_.ExtraParameters, FormattedAddress: feed_.FormattedAddress,
-				Reason: feed_.Reason}
-		}
-
-	}
-	return feed, nil
 }
 
 // Mutation returns MutationResolver implementation.
