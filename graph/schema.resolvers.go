@@ -13,13 +13,13 @@ import (
 
 // CreateLatLng is the resolver for the createLatLng field.
 func (r *mutationResolver) CreateLatLng(ctx context.Context, input model.NewLatLng) (*model.LatLng, error) {
-	Cor := &model.LatLng{
+	LatLng := &model.LatLng{
 		Lat: input.Latitude,
 		Lng: input.Longitude,
 	}
 
-	r.latlngs = append(r.latlngs, Cor)
-	return Cor, nil
+	r.latlngs = append(r.latlngs, LatLng)
+	return LatLng, nil
 }
 
 // CreateFeed is the resolver for the createFeed field.
