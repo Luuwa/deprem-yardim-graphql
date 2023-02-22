@@ -13,28 +13,105 @@ import (
 
 // CreateLatLng is the resolver for the createLatLng field.
 func (r *mutationResolver) CreateLatLng(ctx context.Context, input model.NewLatLng) (*model.LatLng, error) {
-	Cor := &model.LatLng{
+	LatLng := &model.LatLng{
 		Lat: input.Latitude,
 		Lng: input.Longitude,
 	}
 
-	r.latlngs = append(r.latlngs, Cor)
-	return Cor, nil
+	r.latlngs = append(r.latlngs, LatLng)
+	return LatLng, nil
 }
 
 // CreateFeed is the resolver for the createFeed field.
 func (r *mutationResolver) CreateFeed(ctx context.Context, input model.NewFeed) (*model.Feed, error) {
-	panic(fmt.Errorf("not implemented: CreateFeed - createFeed"))
+	feed := &model.Feed{
+		FullText:         input.FullText,
+		IsResolved:       input.IsResolved,
+		Channel:          input.Channel,
+		Timestamp:        input.Timestamp,
+		Epoch:            input.Epoch,
+		ExtraParameters:  input.ExtraParameters,
+		FormattedAddress: input.FormattedAddress,
+		Reason:           input.Reason,
+	}
+
+	r.feeds = append(r.feeds, feed)
+	return feed, nil
+}
+
+// CreateNeed is the resolver for the createNeed field.
+func (r *mutationResolver) CreateNeed(ctx context.Context, input model.NewNeed) (*model.Need, error) {
+	panic(fmt.Errorf("not implemented: CreateNeed - createNeed"))
+}
+
+// UpdateLocationIntentAndNeeds is the resolver for the updateLocationIntentAndNeeds field.
+func (r *mutationResolver) UpdateLocationIntentAndNeeds(ctx context.Context, input *model.UpdateLocationIntentAndNeedsInput) (*bool, error) {
+	panic(fmt.Errorf("not implemented: UpdateLocationIntentAndNeeds - updateLocationIntentAndNeeds"))
+}
+
+// DeleteFeedLocation is the resolver for the deleteFeedLocation field.
+func (r *mutationResolver) DeleteFeedLocation(ctx context.Context, input *model.DeleteFeedLocationInput) (*bool, error) {
+	panic(fmt.Errorf("not implemented: DeleteFeedLocation - deleteFeedLocation"))
+}
+
+// UpdateFeedLocations is the resolver for the updateFeedLocations field.
+func (r *mutationResolver) UpdateFeedLocations(ctx context.Context, input []*model.UpdateFeedLocationsInput) (*bool, error) {
+	panic(fmt.Errorf("not implemented: UpdateFeedLocations - updateFeedLocations"))
 }
 
 // LatLngs is the resolver for the latLngs field.
 func (r *queryResolver) LatLngs(ctx context.Context) ([]*model.LatLng, error) {
-	var latlngArr []*model.LatLng
-	for _, latlng := range r.latlngs {
-		var latlngx = model.LatLng{Lat: latlng.Lat, Lng: latlng.Lng}
-		latlngArr = append(latlngArr, &latlngx)
+	var batch []*model.LatLng
+	for _, ll := range r.latlngs {
+		latlng := model.LatLng{Lat: ll.Lat, Lng: ll.Lng}
+		batch = append(batch, &latlng)
 	}
-	return latlngArr, nil
+	return batch, nil
+}
+
+// FeedByID is the resolver for the feedByID field.
+func (r *queryResolver) FeedByID(ctx context.Context, id int) (*model.Feed, error) {
+	var feed *model.Feed
+	for _, feed_ := range r.feeds {
+		if feed_.ID == id {
+			feed = &model.Feed{
+				ID: feed_.ID, FullText: feed_.FullText,
+				IsResolved: feed_.IsResolved, Channel: feed_.Channel,
+				Timestamp: feed_.Timestamp, Epoch: feed_.Epoch,
+				ExtraParameters: feed_.ExtraParameters, FormattedAddress: feed_.FormattedAddress,
+				Reason: feed_.Reason}
+		}
+
+	}
+	return feed, nil
+}
+
+// Feeds is the resolver for the feeds field.
+func (r *queryResolver) Feeds(ctx context.Context) ([]*model.Feed, error) {
+	var batch []*model.Feed
+	for _, f := range r.feeds {
+		feed := model.Feed{ID: f.ID,
+			FullText:         f.FullText,
+			IsResolved:       f.IsResolved,
+			Channel:          f.Channel,
+			Timestamp:        f.Timestamp,
+			Epoch:            f.Epoch,
+			ExtraParameters:  f.ExtraParameters,
+			FormattedAddress: f.FormattedAddress,
+			Reason:           f.Reason}
+		batch = append(batch, &feed)
+	}
+	return batch, nil
+}
+
+// Locations is the resolver for the locations field.
+func (r *queryResolver) Locations(ctx context.Context) ([]*model.Location, error) {
+	panic(fmt.Errorf("not implemented: Locations - locations"))
+}
+
+// Needs is the resolver for the needs field.
+func (r *queryResolver) Needs(ctx context.Context, onlyNotResolved *bool) ([]*model.Need, error) {
+	panic(fmt.Errorf("not implemented: Needs - needs"))
 }
 
 // Mutation returns MutationResolver implementation.

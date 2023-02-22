@@ -6,6 +6,10 @@ import (
 	"time"
 )
 
+type DeleteFeedLocationInput struct {
+	EntryID int `json:"EntryID"`
+}
+
 type Feed struct {
 	ID               int       `json:"ID"`
 	FullText         string    `json:"FullText"`
@@ -19,6 +23,13 @@ type Feed struct {
 }
 
 type FeedLocation struct {
+	EntryID   int     `json:"EntryID"`
+	Latitude  float64 `json:"Latitude"`
+	Longitude float64 `json:"Longitude"`
+	Address   string  `json:"Address"`
+}
+
+type FeedLocationInput struct {
 	EntryID   int     `json:"EntryID"`
 	Latitude  float64 `json:"Latitude"`
 	Longitude float64 `json:"Longitude"`
@@ -51,8 +62,22 @@ type Location struct {
 	Channel          string    `json:"Channel"`
 }
 
-type NewFeed struct {
+type Need struct {
 	ID               int       `json:"ID"`
+	Description      string    `json:"Description"`
+	IsResolved       bool      `json:"IsResolved"`
+	Timestamp        time.Time `json:"Timestamp"`
+	ExtraParameters  *string   `json:"ExtraParameters"`
+	FormattedAddress string    `json:"FormattedAddress"`
+	Loc              []float64 `json:"Loc"`
+}
+
+type NeedItem struct {
+	Label  string `json:"Label"`
+	Status bool   `json:"Status"`
+}
+
+type NewFeed struct {
 	FullText         string    `json:"FullText"`
 	IsResolved       bool      `json:"IsResolved"`
 	Channel          string    `json:"Channel"`
@@ -66,6 +91,11 @@ type NewFeed struct {
 type NewLatLng struct {
 	Latitude  float64 `json:"Latitude"`
 	Longitude float64 `json:"Longitude"`
+}
+
+type NewNeed struct {
+	Address     string `json:"Address"`
+	Description string `json:"Description"`
 }
 
 type Response struct {
@@ -86,6 +116,16 @@ type Result struct {
 	IsNeedVerified     bool      `json:"IsNeedVerified"`
 }
 
+type UpdateFeedLocationsInput struct {
+	Locations []*FeedLocationInput `json:"locations"`
+}
+
 type UpdateFeedLocationsRequest struct {
 	FeedLocations []*FeedLocation `json:"FeedLocations"`
+}
+
+type UpdateLocationIntentAndNeedsInput struct {
+	ID      int         `json:"ID"`
+	Intents string      `json:"Intents"`
+	Needs   []*NeedItem `json:"Needs"`
 }

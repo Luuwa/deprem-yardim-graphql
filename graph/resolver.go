@@ -21,4 +21,5 @@ func New() Config {
 
 type Resolver struct {
 	latlngs []*model.LatLng
+	feeds   []*model.Feed
 }

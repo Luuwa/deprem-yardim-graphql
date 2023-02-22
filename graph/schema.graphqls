@@ -65,12 +65,22 @@ type FeedLocation {
   Longitude: Float!
   Address: String!
 }
+
+type Need {
+  ID: Int!
+  Description: String!
+  IsResolved: Boolean!
+  Timestamp: Time!
+  ExtraParameters: String
+  FormattedAddress: String!
+  Loc: [Float!]!
+}
+
 input NewLatLng {
   Latitude: Float!
   Longitude: Float!
 }
 input NewFeed {
-  ID: Int!
   FullText: String!
   IsResolved: Boolean!
   Channel: String!
@@ -80,12 +90,47 @@ input NewFeed {
   FormattedAddress: String!
   Reason: String
 }
+input NewNeed {
+  Address: String!
+  Description: String!
+}
+input NeedItem {
+  Label: String!
+  Status: Boolean!
+}
+input UpdateLocationIntentAndNeedsInput {
+  ID: Int!
+  Intents: String!
+  Needs: [NeedItem!]!
+}
+input DeleteFeedLocationInput {
+  EntryID: Int!
+}
+input FeedLocationInput {
+  EntryID: Int!
+  Latitude: Float!
+  Longitude: Float!
+  Address: String!
+}
+input UpdateFeedLocationsInput {
+  locations: [FeedLocationInput!]!
+}
 
 type Query {
   latLngs: [LatLng!]!
+  feedByID(id: Int!): Feed
+  feeds: [Feed!]!
+  locations: [Location!]!
+  needs(onlyNotResolved: Boolean): [Need!]!
 }
 
 type Mutation {
   createLatLng(input: NewLatLng!): LatLng!
   createFeed(input: NewFeed!): Feed!
+  createNeed(input: NewNeed!): Need!
+  updateLocationIntentAndNeeds(
+    input: UpdateLocationIntentAndNeedsInput
+  ): Boolean
+  deleteFeedLocation(input: DeleteFeedLocationInput): Boolean
+  updateFeedLocations(input: [UpdateFeedLocationsInput!]!): Boolean
 }
