@@ -83,6 +83,7 @@ input NewFeed {
 
 type Query {
   latLngs: [LatLng!]!
+  feedByID(id: Int!): Feed
 }
 
 type Mutation {

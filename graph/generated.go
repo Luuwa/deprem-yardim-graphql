@@ -96,7 +96,8 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		LatLngs func(childComplexity int) int
+		FeedByID func(childComplexity int, id int) int
+		LatLngs  func(childComplexity int) int
 	}
 
 	Response struct {
@@ -128,6 +129,7 @@ type MutationResolver interface {
 }
 type QueryResolver interface {
 	LatLngs(ctx context.Context) ([]*model.LatLng, error)
+	FeedByID(ctx context.Context, id int) (*model.Feed, error)
 }
 
 type executableSchema struct {
@@ -379,6 +381,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateLatLng(childComplexity, args["input"].(model.NewLatLng)), true
 
+	case "Query.feedByID":
+		if e.complexity.Query.FeedByID == nil {
+			break
+		}
+
+		args, err := ec.field_Query_feedByID_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.FeedByID(childComplexity, args["id"].(int)), true
+
 	case "Query.latLngs":
 		if e.complexity.Query.LatLngs == nil {
 			break
@@ -608,6 +622,21 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_feedByID_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNInt2int(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
 	return args, nil
 }
 
@@ -2139,6 +2168,77 @@ func (ec *executionContext) fieldContext_Query_latLngs(ctx context.Context, fiel
 			}
 			return nil, fmt.Errorf("no field named %q was found under type LatLng", field.Name)
 		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_feedByID(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_feedByID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().FeedByID(rctx, fc.Args["id"].(int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Feed)
+	fc.Result = res
+	return ec.marshalOFeed2ᚖgithubᚗcomᚋLuuwaᚋdepremᚑyardimᚑgraphqlᚋgraphᚋmodelᚐFeed(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_feedByID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "ID":
+				return ec.fieldContext_Feed_ID(ctx, field)
+			case "FullText":
+				return ec.fieldContext_Feed_FullText(ctx, field)
+			case "IsResolved":
+				return ec.fieldContext_Feed_IsResolved(ctx, field)
+			case "Channel":
+				return ec.fieldContext_Feed_Channel(ctx, field)
+			case "Timestamp":
+				return ec.fieldContext_Feed_Timestamp(ctx, field)
+			case "Epoch":
+				return ec.fieldContext_Feed_Epoch(ctx, field)
+			case "ExtraParameters":
+				return ec.fieldContext_Feed_ExtraParameters(ctx, field)
+			case "FormattedAddress":
+				return ec.fieldContext_Feed_FormattedAddress(ctx, field)
+			case "Reason":
+				return ec.fieldContext_Feed_Reason(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Feed", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_feedByID_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
 	}
 	return fc, nil
 }
@@ -5144,6 +5244,26 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
+		case "feedByID":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_feedByID(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
 		case "__type":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -6069,6 +6189,13 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	}
 	res := graphql.MarshalBoolean(*v)
 	return res
+}
+
+func (ec *executionContext) marshalOFeed2ᚖgithubᚗcomᚋLuuwaᚋdepremᚑyardimᚑgraphqlᚋgraphᚋmodelᚐFeed(ctx context.Context, sel ast.SelectionSet, v *model.Feed) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Feed(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOFeedLocation2ᚕᚖgithubᚗcomᚋLuuwaᚋdepremᚑyardimᚑgraphqlᚋgraphᚋmodelᚐFeedLocationᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.FeedLocation) graphql.Marshaler {
