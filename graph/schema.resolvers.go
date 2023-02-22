@@ -6,7 +6,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/Luuwa/deprem-yardim-graphql/graph/model"
 )
@@ -17,13 +16,19 @@ func (r *mutationResolver) CreateLatLng(ctx context.Context, input model.NewLatL
 		Lat: input.Latitude,
 		Lng: input.Longitude,
 	}
-	r.LatLngs = append(r.LatLngs, Cor)
+
+	r.latlngs = append(r.latlngs, Cor)
 	return Cor, nil
 }
 
-// LatLngs is the resolver for the LatLngs field.
+// LatLngs is the resolver for the latLngs field.
 func (r *queryResolver) LatLngs(ctx context.Context) ([]*model.LatLng, error) {
-	return r.LatLngs, nil
+	var latlngArr []*model.LatLng
+	for _, latlng := range r.latlngs {
+		var latlngx = model.LatLng{Lat: latlng.Lat, Lng: latlng.Lng}
+		latlngArr = append(latlngArr, &latlngx)
+	}
+	return latlngArr, nil
 }
 
 // Mutation returns MutationResolver implementation.
@@ -34,13 +39,3 @@ func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//     it when you're done.
-//   - You have helper methods in this file. Move them out to keep these resolver files clean.
-func (r *queryResolver) Locations(ctx context.Context) ([]*model.Location, error) {
-	panic(fmt.Errorf("not implemented: Todos - todos"))
-}
