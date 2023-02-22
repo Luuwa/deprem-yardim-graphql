@@ -70,7 +70,6 @@ input NewLatLng {
   Longitude: Float!
 }
 input NewFeed {
-  ID: Int!
   FullText: String!
   IsResolved: Boolean!
   Channel: String!
@@ -83,6 +82,7 @@ input NewFeed {
 
 type Query {
   latLngs: [LatLng!]!
+  feeds: [Feed!]!
 }
 
 type Mutation {

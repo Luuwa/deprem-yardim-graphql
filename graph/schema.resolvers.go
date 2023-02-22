@@ -6,7 +6,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/Luuwa/deprem-yardim-graphql/graph/model"
 )
@@ -24,17 +23,47 @@ func (r *mutationResolver) CreateLatLng(ctx context.Context, input model.NewLatL
 
 // CreateFeed is the resolver for the createFeed field.
 func (r *mutationResolver) CreateFeed(ctx context.Context, input model.NewFeed) (*model.Feed, error) {
-	panic(fmt.Errorf("not implemented: CreateFeed - createFeed"))
+	feed := &model.Feed{
+		FullText:         input.FullText,
+		IsResolved:       input.IsResolved,
+		Channel:          input.Channel,
+		Timestamp:        input.Timestamp,
+		Epoch:            input.Epoch,
+		ExtraParameters:  input.ExtraParameters,
+		FormattedAddress: input.FormattedAddress,
+		Reason:           input.Reason,
+	}
+
+	r.feeds = append(r.feeds, feed)
+	return feed, nil
 }
 
 // LatLngs is the resolver for the latLngs field.
 func (r *queryResolver) LatLngs(ctx context.Context) ([]*model.LatLng, error) {
-	var latlngArr []*model.LatLng
-	for _, latlng := range r.latlngs {
-		var latlngx = model.LatLng{Lat: latlng.Lat, Lng: latlng.Lng}
-		latlngArr = append(latlngArr, &latlngx)
+	var batch []*model.LatLng
+	for _, ll := range r.latlngs {
+		latlng := model.LatLng{Lat: ll.Lat, Lng: ll.Lng}
+		batch = append(batch, &latlng)
 	}
-	return latlngArr, nil
+	return batch, nil
+}
+
+// Feeds is the resolver for the feeds field.
+func (r *queryResolver) Feeds(ctx context.Context) ([]*model.Feed, error) {
+	var batch []*model.Feed
+	for _, f := range r.feeds {
+		feed := model.Feed{ID: f.ID,
+			FullText:         f.FullText,
+			IsResolved:       f.IsResolved,
+			Channel:          f.Channel,
+			Timestamp:        f.Timestamp,
+			Epoch:            f.Epoch,
+			ExtraParameters:  f.ExtraParameters,
+			FormattedAddress: f.FormattedAddress,
+			Reason:           f.Reason}
+		batch = append(batch, &feed)
+	}
+	return batch, nil
 }
 
 // Mutation returns MutationResolver implementation.

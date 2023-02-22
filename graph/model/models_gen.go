@@ -52,7 +52,6 @@ type Location struct {
 }
 
 type NewFeed struct {
-	ID               int       `json:"ID"`
 	FullText         string    `json:"FullText"`
 	IsResolved       bool      `json:"IsResolved"`
 	Channel          string    `json:"Channel"`
