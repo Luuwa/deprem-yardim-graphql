@@ -3,75 +3,75 @@
 # https://gqlgen.com/getting-started/
 scalar Time
 
-type LatLng  {
+type LatLng {
   lat: Float!
   lng: Float!
 }
-type Feed  {
+type Feed {
   ID: Int!
   FullText: String!
-  IsResolved:  Boolean!
+  IsResolved: Boolean!
   Channel: String!
-  Timestamp:  Time!
-  Epoch:            Int!
-  ExtraParameters:  String
+  Timestamp: Time!
+  Epoch: Int!
+  ExtraParameters: String
   FormattedAddress: String!
-  Reason:           String
+  Reason: String
 }
-type Result  {
-  ID:                 Int!
-  Loc:                [Float!]
-  Entry_ID:           Int!
-  Timestamp:          String
-  Epoch:              Int!
-  Reason:             String
-  Channel:            String
-  ExtraParameters:    String
+type Result {
+  ID: Int!
+  Loc: [Float!]
+  Entry_ID: Int!
+  Timestamp: String
+  Epoch: Int!
+  Reason: String
+  Channel: String
+  ExtraParameters: String
   IsLocationVerified: Boolean!
-  IsNeedVerified:    Boolean!
+  IsNeedVerified: Boolean!
 }
-type LiteResult  {
-  ID:  Int!
+type LiteResult {
+  ID: Int!
   Loc: [Float!]
 }
 
-type Response  {
-  Count:   Int!
+type Response {
+  Count: Int!
   Results: [Result!]
 }
 
-type Location  {
-  ID:               Int!
+type Location {
+  ID: Int!
   FormattedAddress: String!
-  Latitude:         Float!
-  Longitude:        Float!
-  NortheastLat:     Float!
-  NortheastLng:     Float!
-  SouthwestLat:     Float!
-  SouthwestLng:     Float!
-  EntryID:          Int!
-  Timestamp:        Time!
-  Epoch:            Int!
-  Reason:           String!
-  Channel:          String!
+  Latitude: Float!
+  Longitude: Float!
+  NortheastLat: Float!
+  NortheastLng: Float!
+  SouthwestLat: Float!
+  SouthwestLng: Float!
+  EntryID: Int!
+  Timestamp: Time!
+  Epoch: Int!
+  Reason: String!
+  Channel: String!
 }
-type UpdateFeedLocationsRequest  {
+type UpdateFeedLocationsRequest {
   FeedLocations: [FeedLocation!]
 }
 
-type FeedLocation  {
-  EntryID:   Int!
-  Latitude:  Float!
+type FeedLocation {
+  EntryID: Int!
+  Latitude: Float!
   Longitude: Float!
-  Address:   String!
+  Address: String!
 }
-input NewLatLng  {
-  Latitude:  Float!
+input NewLatLng {
+  Latitude: Float!
   Longitude: Float!
 }
 
 type Query {
-  LatLngs: [LatLng!]!
+  latLngs: [LatLng!]!
 }
 
 type Mutation {

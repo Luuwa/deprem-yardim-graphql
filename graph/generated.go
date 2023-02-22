@@ -365,7 +365,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateLatLng(childComplexity, args["input"].(model.NewLatLng)), true
 
-	case "Query.LatLngs":
+	case "Query.latLngs":
 		if e.complexity.Query.LatLngs == nil {
 			break
 		}
@@ -1990,8 +1990,8 @@ func (ec *executionContext) fieldContext_Mutation_createLatLng(ctx context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_LatLngs(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_LatLngs(ctx, field)
+func (ec *executionContext) _Query_latLngs(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_latLngs(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2020,7 +2020,7 @@ func (ec *executionContext) _Query_LatLngs(ctx context.Context, field graphql.Co
 	return ec.marshalNLatLng2ᚕᚖgithubᚗcomᚋLuuwaᚋdepremᚑyardimᚑgraphqlᚋgraphᚋmodelᚐLatLngᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_LatLngs(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_latLngs(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -4922,7 +4922,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
-		case "LatLngs":
+		case "latLngs":
 			field := field
 
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -4931,7 +4931,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_LatLngs(ctx, field)
+				res = ec._Query_latLngs(ctx, field)
 				return res
 			}
 
