@@ -91,6 +91,7 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
+		CreateFeed   func(childComplexity int, input model.NewFeed) int
 		CreateLatLng func(childComplexity int, input model.NewLatLng) int
 	}
 
@@ -123,6 +124,7 @@ type ComplexityRoot struct {
 
 type MutationResolver interface {
 	CreateLatLng(ctx context.Context, input model.NewLatLng) (*model.LatLng, error)
+	CreateFeed(ctx context.Context, input model.NewFeed) (*model.Feed, error)
 }
 type QueryResolver interface {
 	LatLngs(ctx context.Context) ([]*model.LatLng, error)
@@ -353,6 +355,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Location.Timestamp(childComplexity), true
 
+	case "Mutation.createFeed":
+		if e.complexity.Mutation.CreateFeed == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createFeed_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateFeed(childComplexity, args["input"].(model.NewFeed)), true
+
 	case "Mutation.createLatLng":
 		if e.complexity.Mutation.CreateLatLng == nil {
 			break
@@ -471,6 +485,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputNewFeed,
 		ec.unmarshalInputNewLatLng,
 	)
 	first := true
@@ -550,6 +565,21 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) field_Mutation_createFeed_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.NewFeed
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNNewFeed2githubᚗcomᚋLuuwaᚋdepremᚑyardimᚑgraphqlᚋgraphᚋmodelᚐNewFeed(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
 
 func (ec *executionContext) field_Mutation_createLatLng_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -1984,6 +2014,80 @@ func (ec *executionContext) fieldContext_Mutation_createLatLng(ctx context.Conte
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_createLatLng_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_createFeed(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createFeed(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateFeed(rctx, fc.Args["input"].(model.NewFeed))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Feed)
+	fc.Result = res
+	return ec.marshalNFeed2ᚖgithubᚗcomᚋLuuwaᚋdepremᚑyardimᚑgraphqlᚋgraphᚋmodelᚐFeed(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createFeed(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "ID":
+				return ec.fieldContext_Feed_ID(ctx, field)
+			case "FullText":
+				return ec.fieldContext_Feed_FullText(ctx, field)
+			case "IsResolved":
+				return ec.fieldContext_Feed_IsResolved(ctx, field)
+			case "Channel":
+				return ec.fieldContext_Feed_Channel(ctx, field)
+			case "Timestamp":
+				return ec.fieldContext_Feed_Timestamp(ctx, field)
+			case "Epoch":
+				return ec.fieldContext_Feed_Epoch(ctx, field)
+			case "ExtraParameters":
+				return ec.fieldContext_Feed_ExtraParameters(ctx, field)
+			case "FormattedAddress":
+				return ec.fieldContext_Feed_FormattedAddress(ctx, field)
+			case "Reason":
+				return ec.fieldContext_Feed_Reason(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Feed", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createFeed_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -4522,6 +4626,98 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(ctx context.Conte
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputNewFeed(ctx context.Context, obj interface{}) (model.NewFeed, error) {
+	var it model.NewFeed
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"ID", "FullText", "IsResolved", "Channel", "Timestamp", "Epoch", "ExtraParameters", "FormattedAddress", "Reason"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "ID":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ID"))
+			it.ID, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "FullText":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("FullText"))
+			it.FullText, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "IsResolved":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("IsResolved"))
+			it.IsResolved, err = ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "Channel":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Channel"))
+			it.Channel, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "Timestamp":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Timestamp"))
+			it.Timestamp, err = ec.unmarshalNTime2timeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "Epoch":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Epoch"))
+			it.Epoch, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "ExtraParameters":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ExtraParameters"))
+			it.ExtraParameters, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "FormattedAddress":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("FormattedAddress"))
+			it.FormattedAddress, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "Reason":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Reason"))
+			it.Reason, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputNewLatLng(ctx context.Context, obj interface{}) (model.NewLatLng, error) {
 	var it model.NewLatLng
 	asMap := map[string]interface{}{}
@@ -4894,6 +5090,12 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createLatLng(ctx, field)
+			})
+
+		case "createFeed":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createFeed(ctx, field)
 			})
 
 		default:
@@ -5428,6 +5630,20 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
+func (ec *executionContext) marshalNFeed2githubᚗcomᚋLuuwaᚋdepremᚑyardimᚑgraphqlᚋgraphᚋmodelᚐFeed(ctx context.Context, sel ast.SelectionSet, v model.Feed) graphql.Marshaler {
+	return ec._Feed(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNFeed2ᚖgithubᚗcomᚋLuuwaᚋdepremᚑyardimᚑgraphqlᚋgraphᚋmodelᚐFeed(ctx context.Context, sel ast.SelectionSet, v *model.Feed) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Feed(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNFeedLocation2ᚖgithubᚗcomᚋLuuwaᚋdepremᚑyardimᚑgraphqlᚋgraphᚋmodelᚐFeedLocation(ctx context.Context, sel ast.SelectionSet, v *model.FeedLocation) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -5524,6 +5740,11 @@ func (ec *executionContext) marshalNLatLng2ᚖgithubᚗcomᚋLuuwaᚋdepremᚑya
 		return graphql.Null
 	}
 	return ec._LatLng(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNNewFeed2githubᚗcomᚋLuuwaᚋdepremᚑyardimᚑgraphqlᚋgraphᚋmodelᚐNewFeed(ctx context.Context, v interface{}) (model.NewFeed, error) {
+	res, err := ec.unmarshalInputNewFeed(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNNewLatLng2githubᚗcomᚋLuuwaᚋdepremᚑyardimᚑgraphqlᚋgraphᚋmodelᚐNewLatLng(ctx context.Context, v interface{}) (model.NewLatLng, error) {

@@ -69,6 +69,17 @@ input NewLatLng {
   Latitude: Float!
   Longitude: Float!
 }
+input NewFeed {
+  ID: Int!
+  FullText: String!
+  IsResolved: Boolean!
+  Channel: String!
+  Timestamp: Time!
+  Epoch: Int!
+  ExtraParameters: String
+  FormattedAddress: String!
+  Reason: String
+}
 
 type Query {
   latLngs: [LatLng!]!
@@ -76,4 +87,5 @@ type Query {
 
 type Mutation {
   createLatLng(input: NewLatLng!): LatLng!
+  createFeed(input: NewFeed!): Feed!
 }

@@ -51,6 +51,18 @@ type Location struct {
 	Channel          string    `json:"Channel"`
 }
 
+type NewFeed struct {
+	ID               int       `json:"ID"`
+	FullText         string    `json:"FullText"`
+	IsResolved       bool      `json:"IsResolved"`
+	Channel          string    `json:"Channel"`
+	Timestamp        time.Time `json:"Timestamp"`
+	Epoch            int       `json:"Epoch"`
+	ExtraParameters  *string   `json:"ExtraParameters"`
+	FormattedAddress string    `json:"FormattedAddress"`
+	Reason           *string   `json:"Reason"`
+}
+
 type NewLatLng struct {
 	Latitude  float64 `json:"Latitude"`
 	Longitude float64 `json:"Longitude"`

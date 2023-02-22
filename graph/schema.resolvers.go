@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/Luuwa/deprem-yardim-graphql/graph/model"
 )
@@ -19,6 +20,11 @@ func (r *mutationResolver) CreateLatLng(ctx context.Context, input model.NewLatL
 
 	r.latlngs = append(r.latlngs, Cor)
 	return Cor, nil
+}
+
+// CreateFeed is the resolver for the createFeed field.
+func (r *mutationResolver) CreateFeed(ctx context.Context, input model.NewFeed) (*model.Feed, error) {
+	panic(fmt.Errorf("not implemented: CreateFeed - createFeed"))
 }
 
 // LatLngs is the resolver for the latLngs field.
