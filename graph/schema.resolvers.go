@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/Luuwa/deprem-yardim-graphql/graph/model"
 )
@@ -36,6 +37,26 @@ func (r *mutationResolver) CreateFeed(ctx context.Context, input model.NewFeed) 
 
 	r.feeds = append(r.feeds, feed)
 	return feed, nil
+}
+
+// CreateNeed is the resolver for the createNeed field.
+func (r *mutationResolver) CreateNeed(ctx context.Context, input model.NewNeed) (*model.Need, error) {
+	panic(fmt.Errorf("not implemented: CreateNeed - createNeed"))
+}
+
+// UpdateLocationIntentAndNeeds is the resolver for the updateLocationIntentAndNeeds field.
+func (r *mutationResolver) UpdateLocationIntentAndNeeds(ctx context.Context, input *model.UpdateLocationIntentAndNeedsInput) (*bool, error) {
+	panic(fmt.Errorf("not implemented: UpdateLocationIntentAndNeeds - updateLocationIntentAndNeeds"))
+}
+
+// DeleteFeedLocation is the resolver for the deleteFeedLocation field.
+func (r *mutationResolver) DeleteFeedLocation(ctx context.Context, input *model.DeleteFeedLocationInput) (*bool, error) {
+	panic(fmt.Errorf("not implemented: DeleteFeedLocation - deleteFeedLocation"))
+}
+
+// UpdateFeedLocations is the resolver for the updateFeedLocations field.
+func (r *mutationResolver) UpdateFeedLocations(ctx context.Context, input []*model.UpdateFeedLocationsInput) (*bool, error) {
+	panic(fmt.Errorf("not implemented: UpdateFeedLocations - updateFeedLocations"))
 }
 
 // LatLngs is the resolver for the latLngs field.
@@ -81,6 +102,16 @@ func (r *queryResolver) Feeds(ctx context.Context) ([]*model.Feed, error) {
 		batch = append(batch, &feed)
 	}
 	return batch, nil
+}
+
+// Locations is the resolver for the locations field.
+func (r *queryResolver) Locations(ctx context.Context) ([]*model.Location, error) {
+	panic(fmt.Errorf("not implemented: Locations - locations"))
+}
+
+// Needs is the resolver for the needs field.
+func (r *queryResolver) Needs(ctx context.Context, onlyNotResolved *bool) ([]*model.Need, error) {
+	panic(fmt.Errorf("not implemented: Needs - needs"))
 }
 
 // Mutation returns MutationResolver implementation.
